@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Repas de fin d'année · Vos disponibilités</title>
+<meta name="description" content="Indiquez vos disponibilités pour le repas de fin d'année.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5efe3;
+    --card: #fffdf8;
+    --ink: #1c2622;
+    --muted: #6d6f66;
+    --line: #e4d9c6;
+    --green: #1d4a3a;
+    --green-soft: #e3ece6;
+    --gold: #b6873a;
+    --gold-soft: #f4e8d2;
+    --red: #a63d32;
+    --radius: 18px;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    font-family: "DM Sans", system-ui, sans-serif;
+    color: var(--ink);
+    background:
+      radial-gradient(circle at 15% -10%, #fbf7ee 0, transparent 45%),
+      radial-gradient(circle at 110% 10%, #efe4cf 0, transparent 40%),
+      var(--bg);
+    min-height: 100vh;
+    line-height: 1.5;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 32px 18px 64px; }
+
+  .demo {
+    background: var(--gold-soft);
+    border: 1px dashed var(--gold);
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+
+  header { text-align: center; padding: 18px 0 30px; }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 13px; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--gold); font-weight: 700;
+  }
+  .eyebrow svg { width: 14px; height: 14px; fill: var(--gold); }
+  h1 {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 700;
+    font-size: clamp(34px, 8vw, 54px);
+    line-height: 1.05;
+    margin: 12px 0 14px;
+    color: var(--green);
+  }
+  .intro { color: var(--muted); max-width: 500px; margin: 0 auto; font-size: 16px; }
+  .deadline {
+    display: inline-block; margin-top: 16px;
+    background: var(--green); color: #fff;
+    padding: 6px 14px; border-radius: 999px; font-size: 14px; font-weight: 500;
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 26px 22px;
+    box-shadow: 0 1px 0 #fff inset, 0 12px 30px -18px rgba(29, 74, 58, .35);
+    margin-bottom: 22px;
+  }
+  h2 {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 500; font-size: 24px; margin: 0 0 4px; color: var(--green);
+  }
+  .muted { color: var(--muted); font-size: 14px; margin: 0; }
+
+  label.field { display: block; font-weight: 700; font-size: 14px; margin: 22px 0 8px; }
+  label.field span { font-weight: 400; color: var(--muted); }
+  input[type="text"] {
+    width: 100%;
+    font: inherit; font-size: 16px; color: var(--ink);
+    background: #fff;
+    border: 1.5px solid var(--line);
+    border-radius: 12px;
+    padding: 12px 14px;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  input[type="text"]:focus {
+    outline: none; border-color: var(--green);
+    box-shadow: 0 0 0 4px rgba(29, 74, 58, .12);
+  }
+  .hint { font-size: 13px; line-height: 1.5; color: var(--gold); margin-top: 6px; min-height: 3em; }
+  .hint + label.field { margin-top: 4px; }
+
+  .dates { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .date-opt { position: relative; cursor: pointer; }
+  .date-opt input { position: absolute; opacity: 0; pointer-events: none; }
+  .date-body {
+    border: 1.5px solid var(--line);
+    border-radius: 14px;
+    background: #fff;
+    text-align: center;
+    padding: 14px 6px 12px;
+    transition: transform .12s, border-color .15s, background .15s, color .15s;
+    user-select: none;
+  }
+  .date-body .jour { font-size: 13px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); font-weight: 700; }
+  .date-body .num { font-family: "Fraunces", Georgia, serif; font-size: 40px; font-weight: 700; line-height: 1.1; color: var(--green); }
+  .date-body .mois { font-size: 14px; color: var(--muted); }
+  .date-body .check {
+    margin: 8px auto 0; width: 24px; height: 24px; border-radius: 50%;
+    border: 1.5px solid var(--line); display: grid; place-items: center;
+    transition: background .15s, border-color .15s;
+  }
+  .date-body .check svg { width: 14px; height: 14px; stroke: #fff; opacity: 0; }
+  .date-opt:hover .date-body { border-color: var(--green); }
+  .date-opt input:focus-visible + .date-body { box-shadow: 0 0 0 4px rgba(29, 74, 58, .18); }
+  .date-opt input:checked + .date-body { background: var(--green); border-color: var(--green); transform: translateY(-2px); }
+  .date-opt input:checked + .date-body .jour,
+  .date-opt input:checked + .date-body .mois { color: #cfe0d7; }
+  .date-opt input:checked + .date-body .num { color: #fff; }
+  .date-opt input:checked + .date-body .check { background: var(--gold); border-color: var(--gold); }
+  .date-opt input:checked + .date-body .check svg { opacity: 1; }
+
+  .none-opt {
+    display: flex; align-items: center; gap: 10px;
+    margin-top: 12px; font-size: 15px; color: var(--muted); cursor: pointer;
+  }
+  .none-opt input { width: 18px; height: 18px; accent-color: var(--red); }
+
+  .actions { margin-top: 24px; display: flex; flex-direction: column; gap: 10px; }
+  button.primary {
+    font: inherit; font-weight: 700; font-size: 16px;
+    background: var(--green); color: #fff;
+    border: 0; border-radius: 12px; padding: 15px 18px;
+    cursor: pointer; transition: background .15s, transform .1s;
+  }
+  button.primary:hover { background: #163a2d; }
+  button.primary:active { transform: scale(.99); }
+  button.primary:disabled { opacity: .6; cursor: wait; }
+  .msg { font-size: 15px; min-height: 1.4em; }
+  .msg.ok { color: var(--green); font-weight: 500; }
+  .msg.err { color: var(--red); }
+
+  .results-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+  .link-btn {
+    font: inherit; font-size: 14px; color: var(--green); background: none;
+    border: 0; padding: 0; cursor: pointer; text-decoration: underline; text-underline-offset: 3px;
+  }
+
+  .bars { margin: 20px 0 6px; display: grid; gap: 14px; }
+  .bar-row .bar-top { display: flex; justify-content: space-between; align-items: center; font-size: 15px; margin-bottom: 6px; gap: 8px; }
+  .bar-row .bar-top strong { font-weight: 700; }
+  .badge {
+    font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+    background: var(--gold-soft); color: var(--gold); padding: 3px 8px; border-radius: 999px; margin-left: 8px;
+  }
+  .bar { height: 10px; background: #efe8da; border-radius: 999px; overflow: hidden; }
+  .bar span { display: block; height: 100%; background: #9fb5a9; border-radius: 999px; transition: width .5s ease; }
+  .bar-row.lead .bar span { background: var(--green); }
+
+  .table-wrap { overflow-x: auto; margin-top: 22px; border-top: 1px solid var(--line); }
+  table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  th, td { padding: 11px 6px; border-bottom: 1px solid var(--line); text-align: center; vertical-align: top; }
+  th { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 700; }
+  th:first-child, td:first-child { text-align: left; }
+  .dot { display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; }
+  .dot.yes { background: var(--green); }
+  .dot.yes svg { width: 13px; height: 13px; stroke: #fff; }
+  .dot.no { color: #c9bfae; }
+  .tag-none { font-size: 12px; color: var(--red); margin-left: 6px; }
+  .empty { text-align: center; color: var(--muted); padding: 18px 0 4px; }
+
+  footer { text-align: center; color: var(--muted); font-size: 13px; margin-top: 10px; }
+
+  @media (max-width: 420px) {
+    .card { padding: 22px 16px; }
+    .date-body .num { font-size: 34px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="demo" id="demo" hidden>
+    <strong>Mode démo :</strong> les réponses sont enregistrées uniquement dans ce navigateur.
+    Renseignez Supabase dans <code>CONFIG</code> pour partager le sondage.
+  </div>
+
+  <header>
+    <div class="eyebrow">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0l2.6 9.4L24 12l-9.4 2.6L12 24l-2.6-9.4L0 12l9.4-2.6z"/></svg>
+      <span id="eyebrow"></span>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0l2.6 9.4L24 12l-9.4 2.6L12 24l-2.6-9.4L0 12l9.4-2.6z"/></svg>
+    </div>
+    <h1 id="titre"></h1>
+    <p class="intro" id="intro"></p>
+    <div class="deadline" id="deadline" hidden></div>
+  </header>
+
+  <form class="card" id="form" novalidate>
+    <h2>Vos disponibilités</h2>
+    <p class="muted">Cochez tous les soirs où vous pouvez venir.</p>
+
+    <label class="field" for="nom">Prénom et nom</label>
+    <input type="text" id="nom" autocomplete="name" maxlength="60" placeholder="Ex. Marie Dupont" required>
+    <div class="hint" id="hint"></div>
+
+    <label class="field">Dates possibles</label>
+    <div class="dates" id="dates"></div>
+    <label class="none-opt"><input type="checkbox" id="aucune"> Aucune de ces dates ne me convient</label>
+
+    <div class="actions">
+      <button type="submit" class="primary" id="submit">Envoyer mes dispos</button>
+      <div class="msg" id="msg" role="status" aria-live="polite"></div>
+    </div>
+  </form>
+
+  <section class="card" id="resultats">
+    <div class="results-head">
+      <h2>Où en est-on ?</h2>
+      <button type="button" class="link-btn" id="refresh">Actualiser</button>
+    </div>
+    <p class="muted" id="resume">Chargement…</p>
+    <div class="bars" id="bars"></div>
+    <div class="table-wrap">
+      <table>
+        <thead id="thead"></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer id="footer"></footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+/* =========================================================
+   CONFIGURATION — à adapter
+   ========================================================= */
+const CONFIG = {
+  supabaseUrl: 'https://qqpihxogkxormygegjbf.supabase.co/rest/v1',
+  supabaseKey: 'sb_publishable_kjOc4Dvsa-9s5AoddzhVgg_FpD-KPWw',
+  table: 'repas_dispos',
+
+  eyebrow: 'Édition 2026',
+  titre: "Repas de fin d'année",
+  intro: "On se retrouve au restaurant un soir de décembre. Dites-nous quand vous êtes disponible, la date qui réunit le plus de monde l'emporte.",
+  dateLimite: 'samedi 21 novembre',   // mettre '' pour masquer
+  footer: 'Organisé par Adavan · une question ? passez me voir',
+
+  dates: [
+    { id: '2026-12-10', jour: 'Jeudi', num: '10', mois: 'décembre', court: 'Jeu. 10' },
+    { id: '2026-12-22', jour: 'Mardi', num: '22', mois: 'décembre', court: 'Mar. 22' },
+  ],
+};
+/* ========================================================= */
+
+const DEMO = !/^https:\/\/.+\.supabase\.co/.test(CONFIG.supabaseUrl) || CONFIG.supabaseUrl.includes('VOTRE');
+const sb = (!DEMO && window.supabase) ? window.supabase.createClient(CONFIG.supabaseUrl, CONFIG.supabaseKey) : null;
+
+const $ = (id) => document.getElementById(id);
+const CHECK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7"/></svg>';
+let reponses = [];
+
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const cleanName = (n) => n.replace(/\s+/g, ' ').trim();
+const keyOf = (n) => cleanName(n).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+
+const ls = {
+  get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* ignore */ } },
+};
+
+/* ---------- Stockage (Supabase ou démo locale) ---------- */
+async function fetchAll() {
+  if (DEMO) {
+    try { return JSON.parse(ls.get('repas-demo') || '[]'); } catch (e) { return []; }
+  }
+  const { data, error } = await sb
+    .from(CONFIG.table)
+    .select('nom, nom_key, dates, updated_at')
+    .order('created_at', { ascending: true });
+  if (error) throw error;
+  return data || [];
+}
+
+async function saveRow(row) {
+  if (DEMO) {
+    const all = await fetchAll();
+    const i = all.findIndex((r) => r.nom_key === row.nom_key);
+    if (i >= 0) all[i] = row; else all.push(row);
+    ls.set('repas-demo', JSON.stringify(all));
+    return;
+  }
+  const { error } = await sb.from(CONFIG.table).upsert(row, { onConflict: 'nom_key' });
+  if (error) throw error;
+}
+
+/* ---------- Mise en place de la page ---------- */
+function setupPage() {
+  if (DEMO) $('demo').hidden = false;
+  $('eyebrow').textContent = CONFIG.eyebrow;
+  $('titre').textContent = CONFIG.titre;
+  $('intro').textContent = CONFIG.intro;
+  $('footer').textContent = CONFIG.footer;
+  if (CONFIG.dateLimite) {
+    $('deadline').hidden = false;
+    $('deadline').textContent = 'Réponse avant le ' + CONFIG.dateLimite;
+  }
+
+  $('dates').style.gridTemplateColumns = `repeat(${CONFIG.dates.length}, 1fr)`;
+  $('dates').innerHTML = CONFIG.dates.map((d) => `
+    <label class="date-opt">
+      <input type="checkbox" name="date" value="${esc(d.id)}">
+      <div class="date-body">
+        <div class="jour">${esc(d.jour)}</div>
+        <div class="num">${esc(d.num)}</div>
+        <div class="mois">${esc(d.mois)}</div>
+        <div class="check">${CHECK_SVG}</div>
+      </div>
+    </label>`).join('');
+
+  $('thead').innerHTML = '<tr><th>Participant</th>' +
+    CONFIG.dates.map((d) => `<th>${esc(d.court)}</th>`).join('') + '</tr>';
+
+  // « Aucune » est exclusive des dates
+  $('aucune').addEventListener('change', () => {
+    if ($('aucune').checked) dateInputs().forEach((i) => { i.checked = false; });
+  });
+  $('dates').addEventListener('change', (e) => {
+    if (e.target.checked) $('aucune').checked = false;
+  });
+
+  $('nom').addEventListener('change', prefill);
+  $('nom').addEventListener('blur', prefill);
+  $('form').addEventListener('submit', onSubmit);
+  $('refresh').addEventListener('click', loadResults);
+
+  const saved = ls.get('repas-nom');
+  if (saved) $('nom').value = saved;
+}
+
+const dateInputs = () => Array.from(document.querySelectorAll('input[name="date"]'));
+
+/* Pré-remplit si la personne a déjà répondu */
+function prefill(e) {
+  if (e) { $('msg').textContent = ''; }
+  const k = keyOf($('nom').value);
+  const r = k ? reponses.find((x) => x.nom_key === k) : null;
+  if (r) {
+    dateInputs().forEach((i) => { i.checked = (r.dates || []).includes(i.value); });
+    $('aucune').checked = !(r.dates || []).length;
+    $('submit').textContent = 'Mettre à jour mes dispos';
+    $('hint').textContent = 'Déjà répondu ? Modifiez simplement vos choix.';
+  } else {
+    $('submit').textContent = 'Envoyer mes dispos';
+    $('hint').textContent = '';
+  }
+}
+
+/* ---------- Envoi ---------- */
+async function onSubmit(e) {
+  e.preventDefault();
+  const msg = $('msg');
+  msg.className = 'msg';
+  msg.textContent = '';
+
+  const nom = cleanName($('nom').value);
+  const dates = dateInputs().filter((i) => i.checked).map((i) => i.value);
+  const aucune = $('aucune').checked;
+
+  if (!nom) {
+    msg.className = 'msg err';
+    msg.textContent = 'Indiquez votre prénom et votre nom.';
+    $('nom').focus();
+    return;
+  }
+  if (!dates.length && !aucune) {
+    msg.className = 'msg err';
+    msg.textContent = 'Cochez au moins une date, ou « Aucune de ces dates ».';
+    return;
+  }
+
+  const row = {
+    nom,
+    nom_key: keyOf(nom),
+    dates,
+    updated_at: new Date().toISOString(),
+  };
+
+  const btn = $('submit');
+  btn.disabled = true;
+  btn.textContent = 'Envoi…';
+  try {
+    await saveRow(row);
+    ls.set('repas-nom', nom);
+    msg.className = 'msg ok';
+    msg.textContent = `Merci ${nom.split(' ')[0]} ! Vos disponibilités sont bien enregistrées.`;
+    await loadResults();
+    prefill();
+  } catch (err) {
+    console.error(err);
+    msg.className = 'msg err';
+    msg.textContent = "Oups, l'envoi n'a pas fonctionné. Réessayez dans un instant.";
+    btn.textContent = 'Envoyer mes dispos';
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+/* ---------- Résultats ---------- */
+async function loadResults() {
+  try {
+    reponses = await fetchAll();
+  } catch (err) {
+    console.error(err);
+    $('resume').textContent = 'Impossible de charger les réponses pour le moment.';
+    return;
+  }
+  renderResults();
+}
+
+function renderResults() {
+  const total = reponses.length;
+  $('resume').textContent = total
+    ? `${total} réponse${total > 1 ? 's' : ''} pour l'instant.`
+    : 'Personne n’a encore répondu. Soyez le premier !';
+
+  const counts = CONFIG.dates.map((d) => reponses.filter((r) => (r.dates || []).includes(d.id)).length);
+  const max = Math.max(0, ...counts);
+
+  $('bars').innerHTML = total ? CONFIG.dates.map((d, i) => {
+    const lead = max > 0 && counts[i] === max;
+    const pct = total ? Math.round((counts[i] / total) * 100) : 0;
+    return `
+      <div class="bar-row${lead ? ' lead' : ''}">
+        <div class="bar-top">
+          <span><strong>${esc(d.jour)} ${esc(d.num)} ${esc(d.mois)}</strong>${lead ? '<span class="badge">En tête</span>' : ''}</span>
+          <span>${counts[i]} / ${total}</span>
+        </div>
+        <div class="bar"><span style="width:${pct}%"></span></div>
+      </div>`;
+  }).join('') : '';
+
+  const sorted = [...reponses].sort((a, b) => a.nom.localeCompare(b.nom, 'fr'));
+  $('tbody').innerHTML = sorted.length ? sorted.map((r) => {
+    const none = !(r.dates || []).length;
+    return `<tr>
+      <td>${esc(r.nom)}${none ? '<span class="tag-none">aucune date</span>' : ''}</td>
+      ${CONFIG.dates.map((d) => (r.dates || []).includes(d.id)
+        ? `<td><span class="dot yes" aria-label="disponible">${CHECK_SVG}</span></td>`
+        : '<td><span class="dot no" aria-label="pas disponible">—</span></td>').join('')}
+    </tr>`;
+  }).join('') : `<tr><td colspan="${CONFIG.dates.length + 1}" class="empty">Les réponses s'afficheront ici.</td></tr>`;
+}
+
+/* ---------- Lancement ---------- */
+setupPage();
+loadResults().then(prefill);
+</script>
+</body>
+</html>
