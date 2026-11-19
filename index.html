@@ -62,6 +62,16 @@
     color: var(--green);
   }
   .intro { color: var(--muted); max-width: 500px; margin: 0 auto; font-size: 16px; }
+  .flou {
+    display: inline-block;
+    padding: 0 4px;
+    font-weight: 700;
+    color: var(--green);
+    filter: blur(3.5px);
+    user-select: none;
+    -webkit-user-select: none;
+    cursor: help;
+  }
   .deadline {
     display: inline-block; margin-top: 16px;
     background: var(--green); color: #fff;
@@ -254,7 +264,8 @@ const CONFIG = {
 
   eyebrow: 'Édition 2026',
   titre: "Repas de fin d'année",
-  intro: "On se retrouve au restaurant un soir de décembre. Dites-nous quand vous êtes disponible, la date qui réunit le plus de monde l'emporte.",
+  // Le texte flouté est volontairement faux : même en inspectant la page, on ne trouve pas le vrai nom
+  intro: 'On se retrouve au <span class="flou" title="Surprise !" aria-label="lieu surprise">Château de la Surprise</span> un soir de décembre. Dites-nous quand vous êtes disponible : la date qui réunit le plus de monde l\'emporte.',
   dateLimite: 'samedi 21 novembre',   // mettre '' pour masquer
   footer: 'Organisé par Adavan · une question ? passez me voir',
 
@@ -311,7 +322,7 @@ function setupPage() {
   if (DEMO) $('demo').hidden = false;
   $('eyebrow').textContent = CONFIG.eyebrow;
   $('titre').textContent = CONFIG.titre;
-  $('intro').textContent = CONFIG.intro;
+  $('intro').innerHTML = CONFIG.intro;
   $('footer').textContent = CONFIG.footer;
   if (CONFIG.dateLimite) {
     $('deadline').hidden = false;
