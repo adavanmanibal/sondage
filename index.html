@@ -60,6 +60,11 @@
     filter: blur(3.5px); user-select: none; -webkit-user-select: none; cursor: help;
   }
   .lieu { font-weight: 700; color: var(--green); }
+  .infos { margin: 12px auto 0; font-size: 15px; color: var(--ink); }
+  .infos strong { font-weight: 700; }
+  .infos a { color: var(--green); font-weight: 500; text-underline-offset: 3px; white-space: nowrap; }
+  body.has-bg .infos { color: #fff; text-shadow: 0 1px 12px rgba(0, 0, 0, .45); }
+  body.has-bg .infos a { color: #ecd3a4; }
   .deadline {
     display: inline-block; margin-top: 16px;
     background: var(--green); color: #fff;
@@ -229,6 +234,7 @@
     </div>
     <h1 id="titre"></h1>
     <p class="intro" id="intro"></p>
+    <p class="infos" id="infos"></p>
     <div class="deadline" id="deadline"></div>
     <a href="#choix-nom" class="scroll-cue" aria-label="Aller au choix du menu"></a>
   </header>
@@ -306,6 +312,9 @@ const CONFIG = {
   // Laissez '' pour ne pas en mettre. Si la vidéo ne se charge pas, la photo prend le relais.
   fondVideo: 'artigny.mp4',
   fondPhoto: 'artigny.jpg',
+
+  horaire: 'À partir de 19h - 19h30',
+  adresse: '92 rue de Monts, 37250 Montbazon',
 
   dateLimiteTexte: 'lundi 30 novembre inclus',
   finDesChoix: '2026-12-01T00:00:00+01:00', // à partir de ce moment, plus de modification possible
@@ -446,6 +455,15 @@ function setupPage() {
     : '<span class="flou" title="Surprise !" aria-label="lieu surprise">Château de la Surprise</span>';
   $('intro').innerHTML = esc(CONFIG.intro).replace('{lieu}', lieu);
   $('footer').textContent = CONFIG.footer;
+  if (CONFIG.adresse || CONFIG.horaire) {
+    const carte = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent((CONFIG.lieuRevele ? CONFIG.lieuNom + ', ' : '') + CONFIG.adresse);
+    $('infos').innerHTML = [
+      CONFIG.horaire ? `<strong>${esc(CONFIG.horaire)}</strong>` : '',
+      CONFIG.adresse ? `${esc(CONFIG.adresse)} · <a href="${esc(carte)}" target="_blank" rel="noopener">Itinéraire</a>` : '',
+    ].filter(Boolean).join('<br>');
+  } else {
+    $('infos').hidden = true;
+  }
 
   if (CLOS) {
     $('deadline').textContent = 'Les choix sont clos, rendez-vous le 10 décembre !';
