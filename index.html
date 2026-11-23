@@ -96,16 +96,20 @@
   /* Menu */
   .menu-head { text-align: center; margin-bottom: 6px; }
   .menu-head h2 { font-size: 30px; }
-  .course { margin-top: 26px; }
+  .course { margin-top: 38px; }
+  .course:first-child { margin-top: 22px; }
+  .course-opts {
+    background: #f7f1e6; border: 1px solid var(--line); border-radius: 16px; padding: 10px;
+  }
   .course-title {
     display: flex; align-items: center; gap: 12px;
     font-size: 12px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--gold);
-    margin-bottom: 12px;
+    margin-bottom: 10px;
   }
   .course-title::before, .course-title::after { content: ""; flex: 1; height: 1px; background: var(--line); }
   .ou {
     text-align: center; font-family: "Fraunces", Georgia, serif; font-style: italic;
-    color: var(--muted); font-size: 15px; margin: 6px 0;
+    color: var(--muted); font-size: 13px; line-height: 1; margin: 5px 0;
   }
   .opt { position: relative; display: block; cursor: pointer; }
   .opt input { position: absolute; opacity: 0; pointer-events: none; }
@@ -384,6 +388,7 @@ function setupPage() {
   $('menu').innerHTML = CONFIG.menu.map((c) => `
     <div class="course" role="radiogroup" aria-label="${esc(c.label)}">
       <div class="course-title">${esc(c.label)}</div>
+      <div class="course-opts">
       ${c.options.map((o, i) => `
         ${i > 0 ? '<div class="ou">ou</div>' : ''}
         <label class="opt">
@@ -396,6 +401,7 @@ function setupPage() {
             </span>
           </div>
         </label>`).join('')}
+      </div>
     </div>`).join('');
 
   $('nom').addEventListener('change', onNameChange);
