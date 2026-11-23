@@ -179,6 +179,35 @@
 
   footer { text-align: center; color: var(--muted); font-size: 13px; margin-top: 10px; }
 
+  /* Fond vidéo / photo plein écran */
+  .bg { display: none; position: fixed; inset: 0; z-index: -1; background: #16211c; overflow: hidden; }
+  body.has-bg .bg { display: block; }
+  .bg video, .bg img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .bg::after {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(12, 20, 16, .55) 0%, rgba(12, 20, 16, .30) 35%, rgba(12, 20, 16, .72) 100%);
+  }
+  body.has-bg header {
+    min-height: 78vh; min-height: 78svh;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+  }
+  body.has-bg .eyebrow { color: #ecd3a4; }
+  body.has-bg .eyebrow svg { fill: #ecd3a4; }
+  body.has-bg h1 { color: #fff; text-shadow: 0 2px 24px rgba(0, 0, 0, .35); }
+  body.has-bg .intro { color: rgba(255, 255, 255, .9); text-shadow: 0 1px 12px rgba(0, 0, 0, .4); }
+  body.has-bg .lieu { color: #ecd3a4; }
+  body.has-bg .deadline { background: rgba(255, 253, 248, .95); color: var(--green); }
+  body.has-bg .deadline.clos { background: var(--red); color: #fff; }
+  body.has-bg footer { color: rgba(255, 255, 255, .8); }
+  .scroll-cue { display: none; }
+  body.has-bg .scroll-cue {
+    display: block; margin-top: 34px; width: 22px; height: 22px;
+    border-right: 2px solid rgba(255, 255, 255, .8); border-bottom: 2px solid rgba(255, 255, 255, .8);
+    transform: rotate(45deg); animation: cue 1.8s ease-in-out infinite;
+  }
+  @keyframes cue { 0%, 100% { transform: translateY(0) rotate(45deg); opacity: .5; } 50% { transform: translateY(8px) rotate(45deg); opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { body.has-bg .scroll-cue { animation: none; } }
+
   @media (max-width: 560px) {
     .card { padding: 22px 16px; }
     .totaux { grid-template-columns: 1fr; }
@@ -187,6 +216,7 @@
 </style>
 </head>
 <body>
+<div class="bg" id="bg" aria-hidden="true"></div>
 <div class="wrap">
 
   <div class="demo" id="demo" hidden><strong>Mode démo :</strong> les choix sont enregistrés uniquement dans ce navigateur.</div>
@@ -200,9 +230,10 @@
     <h1 id="titre"></h1>
     <p class="intro" id="intro"></p>
     <div class="deadline" id="deadline"></div>
+    <a href="#choix-nom" class="scroll-cue" aria-label="Aller au choix du menu"></a>
   </header>
 
-  <section class="card">
+  <section class="card" id="choix-nom">
     <h2>Qui êtes-vous ?</h2>
     <p class="muted">Sélectionnez votre nom pour faire ou revoir vos choix.</p>
     <div class="select-wrap">
@@ -270,6 +301,11 @@ const CONFIG = {
   lieuRevele: true,
   lieuNom: 'Château d\'Artigny',
   intro: 'Rendez-vous au {lieu} le jeudi 10 décembre. Il ne reste plus qu\'à choisir votre menu !',
+
+  // Fond plein écran : fichiers à déposer dans le même dossier que index.html sur GitHub.
+  // Laissez '' pour ne pas en mettre. Si la vidéo ne se charge pas, la photo prend le relais.
+  fondVideo: 'artigny.mp4',
+  fondPhoto: 'artigny.jpg',
 
   dateLimiteTexte: 'lundi 30 novembre inclus',
   finDesChoix: '2026-12-01T00:00:00+01:00', // à partir de ce moment, plus de modification possible
@@ -367,8 +403,41 @@ async function saveChoix(row) {
   if (error) throw error;
 }
 
+/* ---------- Fond vidéo / photo ---------- */
+function setupFond() {
+  const bg = $('bg');
+  const calme = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const sansFond = () => { document.body.classList.remove('has-bg'); bg.innerHTML = ''; };
+  const photo = () => {
+    if (!CONFIG.fondPhoto) return sansFond();
+    const img = new Image();
+    img.alt = '';
+    img.onerror = sansFond;
+    img.src = CONFIG.fondPhoto;
+    bg.innerHTML = '';
+    bg.appendChild(img);
+  };
+  if (!CONFIG.fondVideo && !CONFIG.fondPhoto) return;
+  document.body.classList.add('has-bg');
+  if (CONFIG.fondVideo && !calme) {
+    const v = document.createElement('video');
+    v.muted = true; v.loop = true; v.autoplay = true; v.playsInline = true;
+    v.setAttribute('muted', ''); v.setAttribute('playsinline', '');
+    v.preload = 'auto';
+    if (CONFIG.fondPhoto) v.poster = CONFIG.fondPhoto;
+    v.onerror = photo;
+    v.src = CONFIG.fondVideo;
+    bg.appendChild(v);
+    const p = v.play();
+    if (p && p.catch) p.catch(() => { /* lecture auto refusée : le poster reste affiché */ });
+  } else {
+    photo();
+  }
+}
+
 /* ---------- Page ---------- */
 function setupPage() {
+  setupFond();
   if (DEMO) $('demo').hidden = false;
   $('eyebrow').textContent = CONFIG.eyebrow;
   $('titre').textContent = CONFIG.titre;
